@@ -1,0 +1,208 @@
+# fetch-skill
+
+Install agent skills onto your coding agents from any git repository.
+
+<!-- agent-list:start -->
+Supports **Opencode**, **Claude Code**, **Codex**, **Cursor**, and [11 more](#available-agents).
+<!-- agent-list:end -->
+
+## Quick Start
+
+```bash
+npx fetch-skill shaneholloman/agent-skills
+```
+
+## What are Agent Skills?
+
+Agent skills are reusable instruction sets that extend your coding agent's capabilities. They're defined in `SKILL.md` files with YAML frontmatter containing a `name` and `description`.
+
+Skills let agents perform specialized tasks like:
+
+- Generating release notes from git history
+- Creating PRs following your team's conventions
+- Integrating with external tools (Linear, Notion, etc.)
+
+## Usage
+
+### Source Formats
+
+The `<source>` argument accepts multiple formats:
+
+```bash
+# GitHub shorthand
+npx fetch-skill shaneholloman/agent-skills
+
+# Full GitHub URL
+npx fetch-skill https://github.com/shaneholloman/agent-skills
+
+# Direct path to a skill in a repo
+npx fetch-skill https://github.com/shaneholloman/agent-skills/tree/main/skills/frontend-design
+
+# GitLab URL
+npx fetch-skill https://gitlab.com/org/repo
+
+# Any git URL
+npx fetch-skill git@github.com:shaneholloman/agent-skills.git
+```
+
+### Options
+
+| Option                    | Description                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-g, --global`            | Install to user directory instead of project                                                                                                       |
+| `-a, --agent <agents...>` | <!-- agent-names:start -->Target specific agents (e.g., `claude-code`, `codex`). See [Available Agents](#available-agents)<!-- agent-names:end --> |
+| `-s, --skill <skills...>` | Install specific skills by name                                                                                                                    |
+| `-l, --list`              | List available skills without installing                                                                                                           |
+| `-y, --yes`               | Skip all confirmation prompts                                                                                                                      |
+| `-V, --version`           | Show version number                                                                                                                                |
+| `-h, --help`              | Show help                                                                                                                                          |
+
+### Examples
+
+```bash
+# List skills in a repository
+npx fetch-skill shaneholloman/agent-skills --list
+
+# Install multiple specific skills
+npx fetch-skill shaneholloman/agent-skills --skill frontend-design --skill skill-creator
+
+# Install to specific agents
+npx fetch-skill shaneholloman/agent-skills -a claude-code -a opencode
+
+# Non-interactive installation (CI/CD friendly)
+npx fetch-skill shaneholloman/agent-skills --skill frontend-design -g -a claude-code -y
+
+# Install all skills from a repo
+npx fetch-skill shaneholloman/agent-skills -y -g
+```
+
+## Available Agents
+
+Skills can be installed to any of these supported agents. Use `-g, --global` to install to the global path instead of project-level.
+
+<!-- available-agents:start -->
+| Agent          | Project Path        | Global Path                     |
+| -------------- | ------------------- | ------------------------------- |
+| OpenCode       | `.opencode/skill/`  | `~/.config/opencode/skill/`     |
+| Claude Code    | `.claude/skills/`   | `~/.claude/skills/`             |
+| Codex          | `.codex/skills/`    | `~/.codex/skills/`              |
+| Cursor         | `.cursor/skills/`   | `~/.cursor/skills/`             |
+| Amp            | `.agents/skills/`   | `~/.config/agents/skills/`      |
+| Kilo Code      | `.kilocode/skills/` | `~/.kilocode/skills/`           |
+| Roo Code       | `.roo/skills/`      | `~/.roo/skills/`                |
+| Goose          | `.goose/skills/`    | `~/.config/goose/skills/`       |
+| Gemini CLI     | `.gemini/skills/`   | `~/.gemini/skills/`             |
+| Antigravity    | `.agent/skills/`    | `~/.gemini/antigravity/skills/` |
+| GitHub Copilot | `.github/skills/`   | `~/.copilot/skills/`            |
+| Clawdbot       | `skills/`           | `~/.clawdbot/skills/`           |
+| Droid          | `.factory/skills/`  | `~/.factory/skills/`            |
+| Gemini CLI     | `.gemini/skills/`   | `~/.gemini/skills/`             |
+| Windsurf       | `.windsurf/skills/` | `~/.codeium/windsurf/skills/`   |
+<!-- available-agents:end -->
+
+## Agent Detection
+
+The CLI automatically detects which coding agents you have installed by checking for their configuration directories. If none are detected, you'll be prompted to select which agents to install to.
+
+## Creating Skills
+
+Skills are directories containing a `SKILL.md` file with YAML frontmatter:
+
+```markdown
+---
+name: my-skill
+description: What this skill does and when to use it
+---
+
+# My Skill
+
+Instructions for the agent to follow when this skill is activated.
+
+## When to Use
+
+Describe the scenarios where this skill should be used.
+
+## Steps
+
+1. First, do this
+2. Then, do that
+```
+
+### Required Fields
+
+- `name`: Unique identifier (lowercase, hyphens allowed)
+- `description`: Brief explanation of what the skill does
+
+### Skill Discovery
+
+The CLI searches for skills in these locations within a repository:
+
+<!-- skill-discovery:start -->
+- Root directory (if it contains `SKILL.md`)
+- `skills/`
+- `skills/.curated/`
+- `skills/.experimental/`
+- `skills/.system/`
+- `.opencode/skill/`
+- `.claude/skills/`
+- `.codex/skills/`
+- `.cursor/skills/`
+- `.agents/skills/`
+- `.kilocode/skills/`
+- `.roo/skills/`
+- `.goose/skills/`
+- `.gemini/skills/`
+- `.agent/skills/`
+- `.github/skills/`
+- `./skills/`
+- `.factory/skills/`
+- `.windsurf/skills/`
+<!-- skill-discovery:end -->
+
+If no skills are found in standard locations, a recursive search is performed.
+
+## Compatibility
+
+Skills are generally compatible across agents since they follow a shared [Agent Skills specification](https://agentskills.io). However, some features may be agent-specific:
+
+| Feature         | OpenCode | Claude Code | Codex | Cursor | Antigravity | Roo Code | Github Copilot | Amp | Clawdbot |
+| --------------- | -------- | ----------- | ----- | ------ | ----------- | -------- | -------------- | --- | -------- |
+| Basic skills    | Yes      | Yes         | Yes   | Yes    | Yes         | Yes      | Yes            | Yes | Yes      |
+| `allowed-tools` | Yes      | Yes         | Yes   | Yes    | Yes         | Yes      | Yes            | Yes | Yes      |
+| `context: fork` | No       | Yes         | No    | No     | No          | No       | No             | No  | No       |
+| Hooks           | No       | Yes         | No    | No     | No          | No       | No             | No  | No       |
+
+## Troubleshooting
+
+### "No skills found"
+
+Ensure the repository contains valid `SKILL.md` files with both `name` and `description` in the frontmatter.
+
+### Skill not loading in agent
+
+- Verify the skill was installed to the correct path
+- Check the agent's documentation for skill loading requirements
+- Ensure the `SKILL.md` frontmatter is valid YAML
+
+### Permission errors
+
+Ensure you have write access to the target directory.
+
+## Related Links
+
+- [Vercel Agent Skills Repository](https://github.com/shaneholloman/agent-skills)
+- [Agent Skills Specification](https://agentskills.io)
+- [OpenCode Skills Documentation](https://opencode.ai/docs/skills)
+- [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
+- [Codex Skills Documentation](https://developers.openai.com/codex/skills)
+- [Cursor Skills Documentation](https://cursor.com/docs/context/skills)
+- [Gemini CLI Skills Documentation](https://geminicli.com/docs/cli/skills/)
+- [Amp Skills Documentation](https://ampcode.com/manual#agent-skills)
+- [Antigravity Skills Documentation](https://antigravity.google/docs/skills)
+- [GitHub Copilot Agent Skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
+- [Roo Code Skills Documentation](https://docs.roocode.com/features/skills)
+- [Clawdbot Skills Documentation](https://docs.clawd.bot/tools/skills)
+
+## License
+
+MIT
